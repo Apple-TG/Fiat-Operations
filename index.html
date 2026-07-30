@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiat Operations AI V5</title>
+  <style>
+:root{
+  --bg:#f3f6fb;--panel:#fff;--text:#172033;--muted:#6b7280;--line:#e5eaf2;
+  --primary:#2563eb;--primary2:#1d4ed8;--danger:#dc2626;--warn:#d97706;--ok:#059669;
+  --shadow:0 10px 30px rgba(15,23,42,.07);--radius:16px
+}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text)}
+button,input,textarea,select{font:inherit}.app-shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
+.sidebar{background:#111827;color:#fff;padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:12px;align-items:center;padding:0 8px 22px}.brand-mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:grid;place-items:center;font-weight:800}
+.brand h1{font-size:16px;margin:0}.brand p{font-size:12px;color:#9ca3af;margin:4px 0 0}
+nav{display:grid;gap:7px}.nav-item{border:0;background:transparent;color:#cbd5e1;padding:12px 14px;text-align:left;border-radius:10px;cursor:pointer}.nav-item:hover,.nav-item.active{background:#1f2937;color:#fff}
+.sidebar-foot{margin-top:auto;color:#9ca3af;font-size:12px;padding:12px 8px}.main{padding:0 28px 40px;min-width:0}
+.topbar{height:92px;display:flex;align-items:center;justify-content:space-between}.topbar h2{margin:0 0 5px;font-size:24px}.topbar p{margin:0;color:var(--muted);font-size:14px}.top-actions,.actions{display:flex;gap:10px;align-items:center}.page{display:none}.page.active{display:block}
+.cards,.grid{display:grid;gap:18px;margin-bottom:18px}.cards.four{grid-template-columns:repeat(4,1fr)}.cards.two,.grid.two{grid-template-columns:repeat(2,1fr)}.report-grid{grid-template-columns:340px 1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;min-width:0}.metric span{color:var(--muted);font-size:13px}.metric strong{font-size:34px;display:block;margin:8px 0}.metric small{color:var(--muted)}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.card h3{margin:0;font-size:17px}.btn{border:1px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;background:#fff;color:var(--text);font-weight:600}.btn:hover{filter:brightness(.98)}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary2)}.btn.ghost{background:transparent}.btn.small{padding:7px 10px;font-size:13px}.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}.link-btn{border:0;background:transparent;color:var(--primary);cursor:pointer}
+textarea,input[type="text"],input[type="number"],input[type="date"],select{width:100%;border:1px solid #d8dee9;border-radius:10px;padding:11px 12px;background:#fff;color:var(--text)}textarea{resize:vertical;line-height:1.55}.actions{margin-top:14px}.hint,.upload-card p{font-size:13px;color:var(--muted);line-height:1.6}.upload-info{margin-top:14px;padding:12px;border-radius:10px;background:#f8fafc;color:var(--muted);font-size:13px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table-wrap.tall{max-height:500px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;white-space:nowrap}th{background:#f8fafc;color:#475569;position:sticky;top:0}tr:last-child td{border-bottom:0}.center{text-align:center}.muted{color:var(--muted)}.empty{min-height:115px;display:grid;place-items:center;text-align:center;color:var(--muted);border:1px dashed #d8dee9;border-radius:12px;padding:18px}
+.pill{font-size:12px;padding:5px 9px;border-radius:999px;background:#eef2ff;color:#3730a3}.status{font-weight:700}.status.risk{color:var(--danger)}.status.warn{color:var(--warn)}.status.ok{color:var(--ok)}
+.report-box{white-space:pre-wrap;line-height:1.75;min-height:310px;background:#f8fafc;border-radius:12px;padding:16px}.field-row{display:grid;gap:12px}.field-row label{font-size:13px;color:var(--muted)}.field-row input,.field-row select{margin-top:6px}.editable-table input{min-width:105px;padding:8px}.editable-table td{padding:7px}.danger-zone{border-color:#fecaca}.toast{position:fixed;right:22px;bottom:22px;background:#111827;color:#fff;padding:12px 16px;border-radius:10px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
+.priority-item,.fund-item{padding:12px 0;border-bottom:1px solid var(--line)}.priority-item:last-child,.fund-item:last-child{border-bottom:0}.priority-item b,.fund-item b{display:block;margin-bottom:4px}
+@media(max-width:1000px){.app-shell{grid-template-columns:210px 1fr}.cards.four{grid-template-columns:repeat(2,1fr)}.grid.two,.cards.two,.report-grid{grid-template-columns:1fr}}
+@media(max-width:720px){.app-shell{display:block}.sidebar{height:auto;position:static}.brand{padding-bottom:12px}nav{grid-template-columns:repeat(2,1fr)}.main{padding:0 14px 30px}.topbar{height:auto;padding:18px 0;align-items:flex-start;gap:12px}.top-actions{flex-wrap:wrap;justify-content:flex-end}.cards.four{grid-template-columns:1fr 1fr}}
+
+
+.field-inline{display:flex;gap:10px;align-items:end;margin-top:12px;flex-wrap:wrap}
+.field-inline label{font-size:13px;color:var(--muted);min-width:165px}
+.field-inline select{margin-top:6px}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FO</div>
+        <div>
+          <h1>Fiat Operations AI</h1>
+          <p>法幣營運工作台 · V5</p>
+        </div>
+      </div>
+
+      <nav id="nav">
+        <button class="nav-item active" data-page="dashboard">總覽</button>
+        <button class="nav-item" data-page="balance">商戶餘額</button>
+        <button class="nav-item" data-page="stats">區間數據</button>
+        <button class="nav-item" data-page="pending">Pending 分析</button>
+        <button class="nav-item" data-page="settlement">結算話術</button>
+        <button class="nav-item" data-page="report">主管回報</button>
+        <button class="nav-item" data-page="backup">備份</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <span id="saveStatus">資料已儲存於此瀏覽器</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">總覽</h2>
+          <p id="pageSubtitle">今日風險、補幣與結算建議</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn ghost" id="refreshBtn">重新整理</button>
+          <button class="btn primary" id="generateReportTop">生成主管回報</button>
+        </div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="cards four">
+          <article class="card metric"><span>風險幣種</span><strong id="riskCount">0</strong><small>需優先處理</small></article>
+          <article class="card metric"><span>注意幣種</span><strong id="warnCount">0</strong><small>建議持續觀察</small></article>
+          <article class="card metric"><span>正常幣種</span><strong id="normalCount">0</strong><small>目前無明顯異常</small></article>
+          <article class="card metric"><span>已載入資料</span><strong id="loadedCount">0</strong><small>資料模組</small></article>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head"><h3>今日處理重點</h3><button class="link-btn" data-go="report">查看回報</button></div>
+            <div id="priorityList" class="empty">尚未有足夠資料。先貼上商戶餘額或 Pending 資料。</div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h3>補幣／結算建議</h3></div>
+            <div id="fundingList" class="empty">等待餘額及提款區間資料。</div>
+          </article>
+        </div>
+
+        <article class="card">
+          <div class="card-head"><h3>幣種總覽</h3><button class="btn small" id="exportDashboard">匯出 CSV</button></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>幣種</th><th>餘額</th><th>7日提款均值</th><th>7日代收均值</th><th>可支撐天數</th><th>Pending</th><th>狀態</th><th>建議</th></tr></thead>
+            <tbody id="dashboardTable"><tr><td colspan="8" class="muted center">尚無資料</td></tr></tbody>
+          </table></div>
+        </article>
+      </section>
+
+      <section class="page" id="page-balance">
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head"><h3>貼上 Robot 商戶餘額</h3><button class="btn small ghost" id="sampleBalance">放入範例</button></div>
+            <textarea id="balanceInput" rows="16" placeholder="直接貼上完整 Robot 文字，不需要整理"></textarea>
+            <div class="actions">
+              <button class="btn primary" id="parseBalance">解析餘額</button>
+              <button class="btn ghost" id="clearBalance">清空</button>
+            </div>
+            <p class="hint">顯示 Robot 的 Available 金額及其 USD 換算，不使用 Total。</p>
+          </article>
+          <article class="card">
+            <div class="card-head"><h3>解析結果</h3><span class="pill" id="balanceCount">0 筆</span></div>
+            <div class="table-wrap tall"><table>
+              <thead><tr><th>商戶</th><th>幣種</th><th>Available</th><th>USD 餘額</th></tr></thead>
+              <tbody id="balanceTable"><tr><td colspan="4" class="muted center">尚未解析</td></tr></tbody>
+            </table></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-stats">
+        <div class="cards two">
+          <article class="card upload-card">
+            <h3>提款數據</h3>
+            <p>上傳任意天數的 xlsx、xls、csv。系統使用 <b>Total Amount</b>，並依日期欄自動辨識實際天數。</p>
+            <input type="file" id="withdrawFile" accept=".xlsx,.xls,.csv,.tsv">
+            <div id="withdrawInfo" class="upload-info">尚未上傳</div>
+          </article>
+          <article class="card upload-card">
+            <h3>代收數據</h3>
+            <p>上傳任意天數的 xlsx、xls、csv。系統依 Currency 與日期自動統計日均。</p>
+            <input type="file" id="depositFile" accept=".xlsx,.xls,.csv,.tsv">
+            <div id="depositInfo" class="upload-info">尚未上傳</div>
+          </article>
+        </div>
+        <article class="card">
+          <div class="card-head"><h3>區間統計結果</h3><button class="btn small ghost" id="clearStats">清除數據</button></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>幣種</th><th>提款天數</th><th>提款總額</th><th>提款日均</th><th>代收天數</th><th>代收總額</th><th>代收日均</th><th>日淨流</th></tr></thead>
+            <tbody id="statsTable"><tr><td colspan="8" class="muted center">尚無資料</td></tr></tbody>
+          </table></div>
+        </article>
+      </section>
+
+      <section class="page" id="page-pending">
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head"><h3>貼上 Pending 表格</h3><button class="btn small ghost" id="samplePending">放入範例</button></div>
+            <textarea id="pendingInput" rows="16" placeholder="直接從後台複製整張表格貼上"></textarea>
+            <div class="actions">
+              <button class="btn primary" id="parsePending">分析 Pending</button>
+              <button class="btn ghost" id="clearPending">清空</button>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h3>AI 分析摘要</h3><span class="pill" id="pendingCount">0 筆資料</span></div>
+            <div id="pendingSummary" class="report-box muted">尚未分析</div>
+          </article>
+        </div>
+        <article class="card">
+          <div class="card-head"><h3>Pending 明細</h3><button class="btn small" id="copyPendingReport">複製摘要</button></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>幣種</th><th>商戶</th><th>通道</th><th>金額</th><th>筆數</th><th>平均時數</th><th>最長時數</th><th>判斷</th></tr></thead>
+            <tbody id="pendingTable"><tr><td colspan="8" class="muted center">尚無資料</td></tr></tbody>
+          </table></div>
+        </article>
+      </section>
+
+      <section class="page" id="page-settlement">
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head">
+              <h3>整列貼上生成</h3>
+              <button class="btn small ghost" id="sampleSettlement">載入範例</button>
+            </div>
+            <p class="hint">可直接貼上「表頭＋資料列」，也可只貼多筆資料、不帶表頭。無表頭時依固定欄位順序讀取：商戶單號、商戶、結算幣種、訂單金額、到賬金額、手續費（Fiat）、手續費（USD）、實收USDT、USDT Hash、到賬日期、專員、商戶匯率、優惠匯率。最終計算固定使用「優惠匯率」。</p>
+            <textarea id="settlementPaste" rows="16" placeholder="可貼表頭＋資料列，或直接貼無表頭的多筆資料"></textarea>
+            <div class="field-inline">
+              <label>統一小數位
+                <select id="settlementDecimals">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="6">6</option>
+                </select>
+              </label>
+              <label>結算文字
+                <select id="settlementAction">
+                  <option value="出U">出U</option>
+                  <option value="入U">入U</option>
+                </select>
+              </label>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="generateSettlement">貼上後生成</button>
+              <button class="btn ghost" id="clearSettlement">清空</button>
+            </div>
+            <div id="settlementStatus" class="upload-info">等待貼上資料</div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <h3>批量回報內文</h3>
+              <button class="btn small" id="copySettlement">複製全部</button>
+            </div>
+            <textarea id="settlementOutput" rows="22" readonly placeholder="貼入整列資料後按「貼上後生成」"></textarea>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-report">
+        <div class="grid report-grid">
+          <article class="card">
+            <div class="card-head"><h3>主管回報</h3></div>
+            <div class="field-row">
+              <label>回報日期<input type="date" id="reportDate"></label>
+              <label>回報風格<select id="reportTone"><option value="simple">簡潔</option><option value="detail">完整</option></select></label>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="generateReport">生成回報</button>
+              <button class="btn ghost" id="copyReport">複製</button>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-head"><h3>回報內文</h3></div>
+            <textarea id="reportOutput" rows="24" placeholder="系統會依餘額、區間數據與 Pending 自動生成"></textarea>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-backup">
+        <div class="grid two">
+          <article class="card">
+            <h3>匯出備份</h3>
+            <p>下載所有已解析資料與輸入內容，換電腦時可還原。</p>
+            <button class="btn primary" id="exportBackup">下載備份 JSON</button>
+          </article>
+          <article class="card">
+            <h3>匯入備份</h3>
+            <p>選擇之前匯出的 JSON 檔案。</p>
+            <input type="file" id="importBackup" accept=".json">
+          </article>
+        </div>
+        <article class="card danger-zone">
+          <h3>清除全部資料</h3>
+          <p>只會清除目前瀏覽器內的 Fiat Operations AI 資料。</p>
+          <button class="btn danger" id="resetAll">清除全部</button>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script>
+(() => {
+'use strict';
+
+const STORE_KEY = 'fiat_ops_ai_v1';
+const state = loadState();
+
+const pageMeta = {
+  dashboard:['總覽','今日風險、補幣與結算建議'],
+  balance:['商戶餘額','貼上 Robot 文字並自動解析'],
+  stats:['區間數據','上傳提款與代收報表'],
+  pending:['Pending 分析','辨識延遲商戶、幣種與回報重點'],
+  settlement:['結算話術','批量生成可直接傳送的結算內容'],
+  report:['主管回報','整合所有資料生成回報'],
+  backup:['備份','匯出、匯入或清除資料']
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const num = v => {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  const n = Number(String(v ?? '').replace(/,/g,'').replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+};
+const fmt = v => num(v).toLocaleString('en-US',{maximumFractionDigits:2});
+const normCurrency = v => String(v ?? '').toUpperCase().replace(/FIAT/g,'').replace(/[^A-Z]/g,'').trim();
+const esc = v => String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const today = () => new Date().toISOString().slice(0,10);
+
+function defaultState(){
+  return {balanceText:'',balances:[],withdraw:{rows:[],summary:{},days:0,dateField:''},deposit:{rows:[],summary:{},days:0,dateField:''},pendingText:'',pending:[],pendingSummary:'',settlementText:'',settlementOutput:'',settlementDecimals:'2',settlementAction:'出U',report:''};
+}
+function loadState(){
+  try { return Object.assign(defaultState(), JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); }
+  catch { return defaultState(); }
+}
+function save(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); $('#saveStatus').textContent='剛剛已自動儲存'; }
+  catch { $('#saveStatus').textContent='瀏覽器儲存失敗'; }
+}
+function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(window.__toast); window.__toast=setTimeout(()=>el.classList.remove('show'),1800); }
+function copyText(text){ navigator.clipboard?.writeText(text).then(()=>toast('已複製')).catch(()=>{ const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();toast('已複製'); }); }
+
+function go(page){
+  $$('.page').forEach(x=>x.classList.remove('active'));
+  $$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
+  $('#page-'+page).classList.add('active');
+  $('#pageTitle').textContent=pageMeta[page][0];
+  $('#pageSubtitle').textContent=pageMeta[page][1];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$$('.nav-item').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
+
+function parseBalanceText(text){
+  const raw=String(text||'')
+    .replace(/\r?\n/g,'')
+    .replace(/\u00a0/g,' ')
+    .replace(/[‐‑‒–—]/g,'-')
+    .trim();
+
+  const rows=[];
+  // Robot 欄位順序：provider / account / currency / total / available / pending / frozen / updated
+  // 此解析器明確取第二組金額（available），不取第一組 total。
+  const pattern=/(?:updated|PT[\dHMS.]+)(.+?)\1_([A-Z]{3})(?:FIAT)?\2FIAT(-?[\d,]+(?:\.\d+)?)\s*\((-?[\d,]+(?:\.\d+)?)\s*USD\)(-?[\d,]+(?:\.\d+)?)\s*\((-?[\d,]+(?:\.\d+)?)\s*USD\)/ig;
+  let m;
+  while((m=pattern.exec(raw))){
+    rows.push({
+      merchant:m[1],
+      currency:normCurrency(m[2]),
+      amount:num(m[5]),
+      usd:num(m[6])
+    });
+  }
+  return rows;
+}
+function renderBalances(){
+  $('#balanceInput').value=state.balanceText||'';
+  $('#balanceCount').textContent=`${state.balances.length} 筆`;
+  $('#balanceTable').innerHTML=state.balances.length?state.balances.map(r=>`<tr><td>${esc(r.merchant)}</td><td>${esc(r.currency)}</td><td>${fmt(r.amount)}</td><td>${fmt(r.usd)}</td></tr>`).join(''):'<tr><td colspan="4" class="muted center">尚未解析</td></tr>';
+}
+
+function parseDelimited(text){
+  const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());
+  if(!lines.length) return [];
+  const delim=lines[0].includes('\t')?'\t':',';
+  const parseLine=line=>{ let out=[],cur='',q=false; for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(c===delim&&!q){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out;};
+  const heads=parseLine(lines[0]).map(x=>x.trim());
+  return lines.slice(1).map(l=>{const vals=parseLine(l);const o={};heads.forEach((h,i)=>o[h]=vals[i]??'');return o;});
+}
+async function readSheet(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='csv'||ext==='tsv') return parseDelimited(await file.text());
+  if(!window.XLSX) throw new Error('Excel 元件載入失敗，請確認網路後重新整理；也可另存 CSV 再上傳。');
+  const buf=await file.arrayBuffer(); const wb=XLSX.read(buf,{type:'array'});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{defval:''});
+}
+function pick(obj,names){
+  const entries=Object.entries(obj); for(const n of names){ const f=entries.find(([k])=>k.toLowerCase().replace(/\s|_|-/g,'')===n.toLowerCase().replace(/\s|_|-/g,'')); if(f) return f[1]; }
+  for(const n of names){ const f=entries.find(([k])=>k.toLowerCase().includes(n.toLowerCase())); if(f) return f[1]; }
+  return '';
+}
+function parseDateValue(v){
+  if(v===null||v===undefined||v==='') return '';
+  if(typeof v==='number' && v>20000 && v<80000){
+    const d=new Date(Math.round((v-25569)*86400*1000));
+    if(!isNaN(d)) return d.toISOString().slice(0,10);
+  }
+  const s=String(v).trim();
+  const direct=new Date(s);
+  if(!isNaN(direct)) return direct.toISOString().slice(0,10);
+  const m=s.match(/(20\d{2})[\/\-年.](\d{1,2})[\/\-月.](\d{1,2})/);
+  if(m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  const md=s.match(/(\d{1,2})[\/\-月.](\d{1,2})/);
+  if(md){
+    const y=new Date().getFullYear();
+    return `${y}-${String(md[1]).padStart(2,'0')}-${String(md[2]).padStart(2,'0')}`;
+  }
+  return '';
+}
+function detectDateField(rows){
+  if(!rows.length) return '';
+  const headers=Object.keys(rows[0]);
+  const aliases=['Date','Create Date','Created Date','Created Time','Create Time','Order Date','Statistic Date','日期','建立日期','創建日期','创建日期','訂單日期','订单日期','時間','时间'];
+  for(const alias of aliases){
+    const found=headers.find(h=>normalizeHeader(h)===normalizeHeader(alias));
+    if(found) return found;
+  }
+  let best='',bestCount=0;
+  headers.forEach(h=>{
+    const count=rows.slice(0,30).filter(r=>parseDateValue(r[h])).length;
+    if(count>bestCount){best=h;bestCount=count;}
+  });
+  return bestCount?best:'';
+}
+function summarizeStats(rows){
+  const dateField=detectDateField(rows);
+  const allDates=new Set();
+  const byCurrency={};
+  rows.forEach(r=>{
+    const c=normCurrency(pick(r,['Currency','幣種','币种']));
+    const a=num(pick(r,['Total Amount','TotalAmount','Sum Amount','Amount','總金額','总金额']));
+    if(!c || !Number.isFinite(a)) return;
+    const date=dateField?parseDateValue(r[dateField]):'';
+    if(date) allDates.add(date);
+    if(!byCurrency[c]) byCurrency[c]={total:0,dates:{},days:0,avg:0,maxDaily:0,minDaily:0,latestAmount:0,latestDate:''};
+    byCurrency[c].total+=a;
+    if(date) byCurrency[c].dates[date]=(byCurrency[c].dates[date]||0)+a;
+  });
+  const fallbackDays=allDates.size||1;
+  Object.values(byCurrency).forEach(s=>{
+    const dates=Object.keys(s.dates).sort();
+    s.days=dates.length||fallbackDays;
+    s.avg=s.total/s.days;
+    if(dates.length){
+      const vals=dates.map(d=>s.dates[d]);
+      s.maxDaily=Math.max(...vals);
+      s.minDaily=Math.min(...vals);
+      s.latestDate=dates[dates.length-1];
+      s.latestAmount=s.dates[s.latestDate];
+    }else{
+      s.maxDaily=s.total;
+      s.minDaily=s.total;
+      s.latestAmount=s.total;
+    }
+  });
+  return {summary:byCurrency,days:fallbackDays,dateField};
+}
+function statEntry(summary,c){
+  const v=(summary||{})[c];
+  if(typeof v==='number') return {total:v,days:7,avg:v/7,maxDaily:v/7,minDaily:v/7,latestAmount:v/7,latestDate:''};
+  return v||{total:0,days:0,avg:0,maxDaily:0,minDaily:0,latestAmount:0,latestDate:''};
+}
+async function handleStats(file,type){
+  try{
+    const rows=await readSheet(file);
+    const result=summarizeStats(rows);
+    state[type]={rows,summary:result.summary,days:result.days,dateField:result.dateField};
+    save(); renderStats(); renderDashboard();
+    $('#'+type+'Info').textContent=`已讀取 ${rows.length} 列，辨識 ${Object.keys(result.summary).length} 個幣種、${result.days} 天${result.dateField?`（日期欄：${result.dateField}）`:'（未辨識日期欄，暫按 1 天）'}`;
+    toast('報表已讀取');
+  }catch(e){alert(e.message);}
+}
+function renderStats(){
+  const currencies=[...new Set([...Object.keys(state.withdraw.summary||{}),...Object.keys(state.deposit.summary||{})])].sort();
+  $('#withdrawInfo').textContent=state.withdraw.rows.length?`已載入 ${state.withdraw.rows.length} 列，${Object.keys(state.withdraw.summary||{}).length} 個幣種，${state.withdraw.days||1} 天`:'尚未上傳';
+  $('#depositInfo').textContent=state.deposit.rows.length?`已載入 ${state.deposit.rows.length} 列，${Object.keys(state.deposit.summary||{}).length} 個幣種，${state.deposit.days||1} 天`:'尚未上傳';
+  $('#statsTable').innerHTML=currencies.length?currencies.map(c=>{
+    const w=statEntry(state.withdraw.summary,c),d=statEntry(state.deposit.summary,c);
+    return `<tr><td>${c}</td><td>${w.days||'—'}</td><td>${fmt(w.total)}</td><td>${fmt(w.avg)}</td><td>${d.days||'—'}</td><td>${fmt(d.total)}</td><td>${fmt(d.avg)}</td><td>${fmt(d.avg-w.avg)}</td></tr>`;
+  }).join(''):'<tr><td colspan="8" class="muted center">尚無資料</td></tr>';
+}
+
+function parsePendingText(text){
+  const lines=text.trim().split(/\r?\n/).filter(x=>x.trim());
+  if(!lines.length) return [];
+  let rows=[];
+  if(lines[0].includes('\t')){
+    const heads=lines[0].split('\t').map(x=>x.trim());
+    rows=lines.slice(1).map(line=>{const vals=line.split('\t');const o={};heads.forEach((h,i)=>o[h]=vals[i]??'');return o;});
+  }else{
+    const headers=['Provider','Channel','Currency','Sum Amount','Count','Avg. Pend Hour','Max Hour','Min Hour','Action'];
+    if(/Provider\s+Channel\s+Currency/i.test(lines[0])){
+      const body=lines.slice(1).join('\n');
+      rows=body.split(/\n/).map(line=>{
+        const p=line.trim().split(/\s{2,}|\t+/); const o={};headers.forEach((h,i)=>o[h]=p[i]??'');return o;
+      });
+    }else return [];
+  }
+  return rows.map(r=>({
+    provider:String(pick(r,['Provider','商戶'])||'未識別'),
+    channel:String(pick(r,['Channel','通道'])||''),
+    currency:normCurrency(pick(r,['Currency','幣種'])),
+    amount:num(pick(r,['Sum Amount','Total Amount','Amount','金額'])),
+    count:num(pick(r,['Count','筆數'])),
+    avg:num(pick(r,['Avg. Pend Hour','Avg Pend Hour','Avg Hour','平均時數'])),
+    max:num(pick(r,['Max Hour','最長時數'])),
+    min:num(pick(r,['Min Hour','最短時數']))
+  })).filter(r=>r.currency&&r.provider);
+}
+function pendingJudgement(r){
+  if(r.max>=24||r.avg>=12) return ['嚴重延遲','risk'];
+  if(r.max>=12||r.avg>=6) return ['處理偏慢','warn'];
+  return ['持續觀察','ok'];
+}
+function createPendingSummary(rows){
+  if(!rows.length) return '';
+  const byCur={}; rows.forEach(r=>(byCur[r.currency]??=[]).push(r));
+  const parts=[];
+  Object.entries(byCur).sort((a,b)=>Math.max(...b[1].map(x=>x.max))-Math.max(...a[1].map(x=>x.max))).forEach(([c,list])=>{
+    const worst=[...list].sort((a,b)=>b.avg-a.avg)[0];
+    const totalCount=list.reduce((s,x)=>s+x.count,0), totalAmount=list.reduce((s,x)=>s+x.amount,0);
+    const severe=list.filter(x=>x.avg>=12||x.max>=24);
+    let line=`${c}：共 ${fmt(totalCount)} 筆，金額 ${fmt(totalAmount)}，延遲主要集中於 ${worst.provider}`;
+    line+=`（平均 ${fmt(worst.avg)} 小時，最長 ${fmt(worst.max)} 小時）`;
+    if(severe.length>1) line+='，屬幣種多商戶普遍延遲';
+    else line+='，較可能為個別商戶處理偏慢';
+    parts.push(line+'。');
+  });
+  return parts.join('\n');
+}
+function renderPending(){
+  $('#pendingInput').value=state.pendingText||'';
+  $('#pendingCount').textContent=`${state.pending.length} 筆資料`;
+  $('#pendingSummary').textContent=state.pendingSummary||'尚未分析';
+  $('#pendingSummary').classList.toggle('muted',!state.pendingSummary);
+  $('#pendingTable').innerHTML=state.pending.length?state.pending.map(r=>{const [t,c]=pendingJudgement(r);return `<tr><td>${r.currency}</td><td>${esc(r.provider)}</td><td>${esc(r.channel)}</td><td>${fmt(r.amount)}</td><td>${fmt(r.count)}</td><td>${fmt(r.avg)}</td><td>${fmt(r.max)}</td><td class="status ${c}">${t}</td></tr>`}).join(''):'<tr><td colspan="8" class="muted center">尚無資料</td></tr>';
+}
+
+function aggregateBalance(){
+  const out={}; state.balances.forEach(r=>{out[r.currency]=(out[r.currency]||0)+num(r.amount)}); return out;
+}
+function dashboardRows(){
+  const bal=aggregateBalance(), pend={};
+  state.pending.forEach(r=>{pend[r.currency]=(pend[r.currency]||0)+r.count});
+  const cs=[...new Set([...Object.keys(bal),...Object.keys(state.withdraw.summary||{}),...Object.keys(state.deposit.summary||{}),...Object.keys(pend)])].sort();
+  return cs.map(c=>{
+    const b=bal[c]||0,w=statEntry(state.withdraw.summary,c).avg,d=statEntry(state.deposit.summary,c).avg,p=pend[c]||0;
+    const days=w?b/w:null;
+    let status='正常',klass='ok',advice='持續觀察';
+    if(w&&days<1){status='風險';klass='risk';advice='建議立即補幣';}
+    else if((w&&days<1.5)||p>=20){status='注意';klass='warn';advice=p>=20?'追蹤 Pending 並切換備援':'餘額偏低，準備補幣';}
+    else if(d>w&&w&&days>3){advice='可考慮結算';}
+    else if(w>d&&w){advice='關注餘額下降';}
+    return {currency:c,balance:b,w,d,days,p,status,klass,advice};
+  });
+}
+function renderDashboard(){
+  const rows=dashboardRows();
+  $('#riskCount').textContent=rows.filter(x=>x.status==='風險').length;
+  $('#warnCount').textContent=rows.filter(x=>x.status==='注意').length;
+  $('#normalCount').textContent=rows.filter(x=>x.status==='正常').length;
+  $('#loadedCount').textContent=[state.balances.length,state.withdraw.rows.length,state.deposit.rows.length,state.pending.length].filter(Boolean).length;
+  $('#dashboardTable').innerHTML=rows.length?rows.map(r=>`<tr><td>${r.currency}</td><td>${fmt(r.balance)}</td><td>${fmt(r.w)}</td><td>${fmt(r.d)}</td><td>${r.days===null?'—':fmt(r.days)}</td><td>${fmt(r.p)}</td><td class="status ${r.klass}">${r.status}</td><td>${r.advice}</td></tr>`).join(''):'<tr><td colspan="8" class="muted center">尚無資料</td></tr>';
+  const priorities=rows.filter(x=>x.status!=='正常'||x.p>0).slice(0,8);
+  $('#priorityList').className=priorities.length?'':'empty';
+  $('#priorityList').innerHTML=priorities.length?priorities.map(r=>`<div class="priority-item"><b>${r.currency}｜${r.status}</b><span>${r.advice}${r.p?`；Pending ${fmt(r.p)} 筆`:''}</span></div>`).join(''):'尚未有足夠資料。先貼上商戶餘額或 Pending 資料。';
+  const funds=rows.filter(x=>/補幣|結算|餘額/.test(x.advice));
+  $('#fundingList').className=funds.length?'':'empty';
+  $('#fundingList').innerHTML=funds.length?funds.map(r=>`<div class="fund-item"><b>${r.currency}</b><span>${r.advice}${r.days!==null?`；可支撐 ${fmt(r.days)} 天`:''}</span></div>`).join(''):'等待餘額及提款區間資料。';
+}
+
+function normalizeHeader(v){
+  return String(v||'').replace(/\s+/g,'').replace(/[（）()_\-]/g,'').toLowerCase();
+}
+function parseSettlementPaste(text){
+  const lines=String(text||'').replace(/\r/g,'').split('\n').filter(x=>x.trim());
+  if(!lines.length) return [];
+
+  const splitLine=line=>{
+    if(line.includes('\t')) return line.split('\t').map(x=>x.trim());
+    return line.split(/\s{2,}/).map(x=>x.trim());
+  };
+
+  const aliases={
+    merchant:['商戶','商户','merchant','provider'],
+    currency:['結算幣種','结算币种','幣種','币种','currency'],
+    orderAmount:['訂單金額','订单金额'],
+    receivedAmount:['到賬金額','到账金额','到帳金額','settlementamount'],
+    fiatFee:['手續費fiat','手续费fiat','fiatfee'],
+    usdFee:['手續費usd','手续费usd','usdfee'],
+    receivedUsdt:['實收usdt','实收usdt','receivedusdt'],
+    txid:['usdthash','hash','txid'],
+    merchantRate:['商戶匯率','商户汇率','merchantrate'],
+    discountRate:['優惠匯率','优惠汇率','preferredrate','discountrate']
+  };
+
+  const first=splitLine(lines[0]);
+  const firstKeys=first.map(normalizeHeader);
+  const knownHeaders=Object.values(aliases).flat().map(normalizeHeader);
+  const hasHeader=firstKeys.some(k=>knownHeaders.includes(k));
+
+  let index={},startRow=0;
+  if(hasHeader){
+    Object.entries(aliases).forEach(([field,names])=>{
+      const normalized=names.map(normalizeHeader);
+      index[field]=firstKeys.findIndex(k=>normalized.includes(k));
+    });
+    if(index.merchant<0 || index.currency<0 || index.receivedAmount<0 || index.discountRate<0){
+      throw new Error('表頭已辨識，但缺少必要欄位：商戶、結算幣種、到賬金額或優惠匯率。');
+    }
+    startRow=1;
+  }else{
+    // 固定 13 欄：商戶單號、商戶、結算幣種、訂單金額、到賬金額、Fiat fee、USD fee、實收USDT、Hash、到賬日期、專員、商戶匯率、優惠匯率
+    index={merchant:1,currency:2,orderAmount:3,receivedAmount:4,fiatFee:5,usdFee:6,receivedUsdt:7,txid:8,merchantRate:11,discountRate:12};
+    startRow=0;
+  }
+
+  const rows=[];
+  for(let i=startRow;i<lines.length;i++){
+    const cols=splitLine(lines[i]);
+    if(cols.length<3) continue;
+    const get=f=>index[f]>=0?(cols[index[f]]||''):'';
+    const row={
+      merchant:get('merchant'),
+      currency:normCurrency(get('currency')),
+      orderAmount:num(get('orderAmount')),
+      receivedAmount:num(get('receivedAmount')),
+      fiatFee:num(get('fiatFee')),
+      usdFee:num(get('usdFee')),
+      receivedUsdt:num(get('receivedUsdt')),
+      txid:get('txid'),
+      merchantRate:num(get('merchantRate')),
+      discountRate:num(get('discountRate'))
+    };
+    if(row.merchant && row.currency && row.receivedAmount && row.discountRate) rows.push(row);
+  }
+  if(!rows.length){
+    throw new Error(hasHeader?'未讀取到有效資料列。':'無表頭資料必須維持固定 13 欄順序，建議直接從 Excel／WPS 整列複製。');
+  }
+  return rows;
+}
+function fixedNumber(v,decimals){
+  const n=num(v);
+  return n.toLocaleString('en-US',{
+    minimumFractionDigits:decimals,
+    maximumFractionDigits:decimals,
+    useGrouping:false
+  });
+}
+function trimFixed(v,decimals){
+  return fixedNumber(v,decimals).replace(/\.?0+$/,'');
+}
+function makeSettlementText(r,decimals=2,action='出U'){
+  const merchant=r.merchant||'商戶';
+  const c=(r.currency||'').toUpperCase();
+  const amount=num(r.receivedAmount);
+  const rate=num(r.discountRate);
+  const ff=num(r.fiatFee);
+  const uf=num(r.usdFee);
+  const actual=num(r.receivedUsdt);
+  if(!amount||!rate) return '';
+
+  let calculated=0,formula='';
+  if(ff){
+    calculated=(amount-ff)/rate;
+    formula=`(${trimFixed(amount,decimals)} - fee ${trimFixed(ff,decimals)})/${trimFixed(rate,decimals)}=${fixedNumber(actual||calculated,decimals)} U`;
+  }else if(uf){
+    calculated=(amount/rate)-uf;
+    formula=`(${trimFixed(amount,decimals)}/${trimFixed(rate,decimals)}) - fee ${trimFixed(uf,decimals)}=${fixedNumber(actual||calculated,decimals)} U`;
+  }else{
+    calculated=amount/rate;
+    formula=`${trimFixed(amount,decimals)}/${trimFixed(rate,decimals)}=${fixedNumber(actual||calculated,decimals)} U`;
+  }
+
+  return `${merchant}${action},結算${c} ${trimFixed(amount,decimals)},匯率${trimFixed(rate,decimals)}。 ${formula}, 請你確認,謝謝。${r.txid?`\nTXID：${r.txid}`:''}`;
+}
+function renderSettlementPaste(){
+  $('#settlementPaste').value=state.settlementText||'';
+  $('#settlementOutput').value=state.settlementOutput||'';
+  $('#settlementDecimals').value=state.settlementDecimals||'2';
+  $('#settlementAction').value=state.settlementAction||'出U';
+  $('#settlementStatus').textContent=state.settlementOutput?'已生成批量回報內文':'等待貼上資料';
+}
+
+function buildReport(tone='simple'){
+  const rows=dashboardRows(), issues=rows.filter(x=>x.status!=='正常'||x.p>0), normals=rows.filter(x=>x.status==='正常'&&!x.p);
+  const lines=[];
+  lines.push(`${$('#reportDate').value||today()} 法幣營運回報`);
+  lines.push('');
+  lines.push('【重點事項】');
+  if(!issues.length) lines.push('目前未發現明顯異常。');
+  issues.forEach(r=>{
+    let s=`${r.currency}：${r.advice}`;
+    if(r.balance) s+=`，目前餘額 ${fmt(r.balance)}`;
+    if(r.w) s+=`，區間提款日均 ${fmt(r.w)}`;
+    if(r.p) s+=`，Pending ${fmt(r.p)} 筆`;
+    if(tone==='detail'&&r.days!==null) s+=`，約可支撐 ${fmt(r.days)} 天`;
+    lines.push(s+'。');
+  });
+  if(state.pendingSummary){ lines.push(''); lines.push('【Pending 分析】'); lines.push(state.pendingSummary); }
+  lines.push(''); lines.push('【正常幣種】');
+  lines.push(normals.length?normals.map(x=>x.currency).join('、')+' 目前無明顯異常。':'目前無可列入的正常幣種資料。');
+  return lines.join('\n');
+}
+
+function exportCSV(rows,name){
+  const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  download(new Blob([csv],{type:'text/csv;charset=utf-8'}),name);
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);}
+function renderAll(){renderBalances();renderStats();renderPending();renderSettlementPaste();renderDashboard();$('#reportDate').value=$('#reportDate').value||today();$('#reportOutput').value=state.report||'';}
+
+$('#parseBalance').onclick=()=>{state.balanceText=$('#balanceInput').value;state.balances=parseBalanceText(state.balanceText);save();renderBalances();renderDashboard();toast(`已解析 ${state.balances.length} 筆餘額`);};
+$('#clearBalance').onclick=()=>{state.balanceText='';state.balances=[];save();renderBalances();renderDashboard();};
+$('#sampleBalance').onclick=()=>{$('#balanceInput').value=`TopPayNew\nCurrency: IDRFIAT\nAvailable Balance\n1225299801.55 (67865.96 USD)\nPT3M\n\nEtpay\nCurrency: INRFIAT\nAvailable Balance\n358751.00 (4305.01 USD)\nPT3M`;};
+$('#withdrawFile').onchange=e=>e.target.files[0]&&handleStats(e.target.files[0],'withdraw');
+$('#depositFile').onchange=e=>e.target.files[0]&&handleStats(e.target.files[0],'deposit');
+$('#clearStats').onclick=()=>{state.withdraw={rows:[],summary:{},days:0,dateField:''};state.deposit={rows:[],summary:{},days:0,dateField:''};save();renderStats();renderDashboard();};
+$('#parsePending').onclick=()=>{state.pendingText=$('#pendingInput').value;state.pending=parsePendingText(state.pendingText);state.pendingSummary=createPendingSummary(state.pending);save();renderPending();renderDashboard();toast(`已分析 ${state.pending.length} 列`);};
+$('#clearPending').onclick=()=>{state.pendingText='';state.pending=[];state.pendingSummary='';save();renderPending();renderDashboard();};
+$('#samplePending').onclick=()=>{$('#pendingInput').value=`Provider\tChannel\tCurrency\tSum Amount\tCount\tAvg. Pend Hour\tMax Hour\tMin Hour\tAction\nTopPayNew\tTopPayNew_INR_UPI\tINRFIAT\t1185652.00\t15\t9.50\t23.00\t6.03\t\nEtpay\tEtpay_INR_BANKTRANSFER\tINRFIAT\t358751.00\t6\t21.93\t36.71\t8.75\t\nSimpaisa\tSimpaisa_Jazzcash\tPKRFIAT\t131739.00\t3\t10.13\t11.96\t6.24\t`;};
+$('#copyPendingReport').onclick=()=>copyText(state.pendingSummary||'');
+$('#clearSettlement').onclick=()=>{
+  state.settlementText='';
+  state.settlementOutput='';
+  $('#settlementPaste').value='';
+  $('#settlementOutput').value='';
+  $('#settlementStatus').textContent='等待貼上資料';
+  save();
+};
+$('#sampleSettlement').onclick=()=>{
+  $('#settlementPaste').value=`商戶單號	商戶	結算幣種	訂單金額	到賬金額	手續費（Fiat）	手續費（USD）	實收USDT	USDT Hash	到賬日期	專員	商戶匯率	優惠匯率
+238789	bigidea	TRY	443835.74	443835.74	6657.54		8894.78	9d16ebb22152344897d7593fcef71ad2b90915e2aa5f93dff49fd0c1ce16ad78	7月23日	Kerwin	49.15	49.15
+L_1785153754239	Solpay	INR	4500000	4500000			40909.1	9d21680ee972bf30a513251c5c9da43b3966c9d6dc1fc852db0d6a7119cc1766	7月27日	Apple	110	110`;
+};
+$('#generateSettlement').onclick=()=>{
+  try{
+    state.settlementText=$('#settlementPaste').value;
+    state.settlementDecimals=$('#settlementDecimals').value;
+    state.settlementAction=$('#settlementAction').value;
+    const rows=parseSettlementPaste(state.settlementText);
+    const decimals=num(state.settlementDecimals)||2;
+    state.settlementOutput=rows.map(r=>makeSettlementText(r,decimals,state.settlementAction)).filter(Boolean).join('\n\n');
+    $('#settlementOutput').value=state.settlementOutput;
+    $('#settlementStatus').textContent=`已讀取 ${rows.length} 列，並生成 ${rows.length} 筆回報內文。支援有表頭及無表頭；最終匯率使用優惠匯率。`;
+    save();
+    toast(`已生成 ${rows.length} 筆`);
+  }catch(e){
+    $('#settlementStatus').textContent=e.message;
+    alert(e.message);
+  }
+};
+$('#copySettlement').onclick=()=>copyText($('#settlementOutput').value);
+$('#generateReport').onclick=()=>{state.report=buildReport($('#reportTone').value);$('#reportOutput').value=state.report;save();};
+$('#generateReportTop').onclick=()=>{go('report');state.report=buildReport($('#reportTone').value);$('#reportOutput').value=state.report;save();};
+$('#copyReport').onclick=()=>copyText($('#reportOutput').value);
+$('#refreshBtn').onclick=()=>{renderAll();toast('已重新整理');};
+$('#exportDashboard').onclick=()=>{const rows=dashboardRows();exportCSV([['Currency','Balance','Period Withdraw Avg','Period Deposit Avg','Support Days','Pending','Status','Advice'],...rows.map(r=>[r.currency,r.balance,r.w,r.d,r.days??'',r.p,r.status,r.advice])],`fiat-dashboard-${today()}.csv`);};
+$('#exportBackup').onclick=()=>download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),`fiat-operations-backup-${today()}.json`);
+$('#importBackup').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());Object.assign(state,defaultState(),data);save();renderAll();toast('備份已還原');}catch{alert('備份檔案無法讀取');}};
+$('#resetAll').onclick=()=>{if(confirm('確定清除全部資料？')){Object.assign(state,defaultState());save();renderAll();toast('資料已清除');}};
+$('#reportOutput').addEventListener('input',e=>{state.report=e.target.value;save();});
+$('#balanceInput').addEventListener('input',e=>{state.balanceText=e.target.value;});
+$('#pendingInput').addEventListener('input',e=>{state.pendingText=e.target.value;});
+
+renderAll();
+})();
+
+</script>
+</body>
+</html>
